@@ -1,0 +1,5 @@
+[Unit]
+Description=Website deploy service
+
+[Service]
+ExecStart=/usr/local/bin/deploy-web

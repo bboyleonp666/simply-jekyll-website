@@ -1,6 +1,5 @@
 package com.city4crew.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,10 +36,10 @@ public class MailServiceApiHandler {
 
         // Call gmail api to send message
         try {
-            File workingDirectory = new File("../gmail_api");
+            File workingDirectory = new File("./gmail_api");
 
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python", "send_message.py", "--message", messageReceived);
+                    "python3", "send_message.py", "--message", messageReceived);
             processBuilder.directory(workingDirectory); // Set the working directory
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
@@ -49,10 +48,19 @@ public class MailServiceApiHandler {
                     .lines()
                     .collect(Collectors.joining("\n"));
 
-            logger.info("Gmail script output: {}", output);
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                logger.error("Error sending email, python exit code: {}, python log: {}", exitCode, output);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
+            } else {
+                logger.info("Successfully send email: {}", output);
+            }
 
         } catch (IOException e) {
             logger.error("Error calling Python script", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
+        } catch (InterruptedException e) {
+            logger.error("Error waiting for process to complete", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request");
         }
 

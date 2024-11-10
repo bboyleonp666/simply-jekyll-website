@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name bboyleonp.me www.bboyleonp.me;
+    server_name PLACEHOLDER_DOMAIN www.PLACEHOLDER_DOMAIN;
 
     # Redirect HTTP to HTTPS
     return 301 https://$host$request_uri;
@@ -8,23 +8,23 @@ server {
 
 server {
     listen 443 ssl;
-    server_name bboyleonp.me www.bboyleonp.me;
+    server_name PLACEHOLDER_DOMAIN www.PLACEHOLDER_DOMAIN;
 
     ssl_certificate /etc/ssl/certs/selfsigned.crt;
     ssl_certificate_key /etc/ssl/private/selfsigned.key;
 
     location / {
-        root /home/leon/agency-jekyll-theme/_site;
+        root PLACEHOLDER_SITE_PATH;
         index index.html;
         try_files $uri $uri/ =404;
     }
 
-    location /contactus {
-        proxy_pass http://localhost:8888;  # Replace with your backend API port
+    location PLACEHOLDER_GMAIL_API_PATH {
+        # domain name `gmail-api` aligns the setting in docker-compose.yaml
+        proxy_pass http://gmail-api:PLACEHOLDER_GMAIL_API_PORTPLACEHOLDER_GMAIL_API_PATH;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
-

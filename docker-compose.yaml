@@ -1,0 +1,55 @@
+services:
+  site-builder:
+    # build the website and continue to update the changes by web-deployd
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: site-builder
+    working_dir: /app/agency-jekyll-theme
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - .:/app
+    command: bash -c '
+      echo "Start web-deployd" && 
+      bundle install &&
+      bundle exec jekyll build &&
+      systemctl start web-deployd'
+
+  nginx:
+    # start the website with nginx
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/app
+      - ./nginx/generated:/root/generated
+    stdin_open: true
+    tty: true
+    command: bash -c '
+      echo "Start nginx" && 
+      systemctl start nginx'
+  
+  gmail-api:
+    # start the gmail api agent
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gmail-api
+      args:
+        - PORT=8964
+        - LOG_LEVEL=${LOG_LEVEL}
+    volumes:
+      - ./service/gmail_api:/root/gmail_api
+    stdin_open: true
+    tty: true
+    working_dir: /root
+    expose:
+      - "8964"
+    command: bash -c '
+      echo "Start gmail agent" &&
+      java -jar /root/gmail-api-agent.jar'

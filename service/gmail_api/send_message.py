@@ -1,5 +1,6 @@
 import argparse
 import base64
+import logging
 from email.message import EmailMessage
 
 # import google.auth
@@ -7,6 +8,8 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from googleapiclient.errors import HttpError
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class GmailApi:
     def __init__(self, cred_file: str="token.json") -> None:
@@ -18,6 +21,7 @@ class GmailApi:
         self.service = build("gmail", "v1", credentials=self.creds)
 
     def send_message(self, message: EmailMessage) -> None:
+        logging.debug(f"message to send: {message}")
         try:
             # encoded message
             encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
@@ -29,10 +33,11 @@ class GmailApi:
                 .send(userId="me", body=create_message)
                 .execute()
             )
-            print(f'Message Id: {send_message["id"]}')
-        except HttpError as error:
-            print(f"An error occurred: {error}")
+            logging.info(f'Message Id: {send_message["id"]}')
+        except Exception as e:
+            logging.error(f"Error when sending messages: {e}")
             send_message = None
+            exit(1)
         return send_message
 
     @staticmethod
