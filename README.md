@@ -1,18 +1,23 @@
-# Jekyll Website Deployment
+# Simple website deployment
+This repository supports website deployment with gmail API that can send `noreply` emails to your desired account.  
+
+## Requirements
+1. Clone this repository with `git clone --recursive https://github.com/bboyleonp666/simply-jekyll-website.git`
+2. Install `docker` and `docker-compose`
+3. Create a gmail robot account and obtain the credential file, put it in `service/gmail_api/credentail.json`, then run initialization script.
+
+## Configuration
+The configuration file is `.env`. For quick deployment, simply modify the configuration value accroding to your needs.  
+- local deployment: use default value.
+- custom domain name: replace `DOMAIN` value with your domain.
 
 ## Quick Start
-1. `$sh setup.sh setup`: setup necessary configuration
-2. update your website: `_config.yml`
-3. `$docker compose up`
-4. Let's Encrypt: get valid certificate
-    1. get valid ssh certificate
-    2. update ssl cert and key path in /etc/nginx/sites-enable/site.conf
-5. Gmail API Token
-    1. setup google workspace for gmail api
-    2. download credential file
-    3. run init script to generate token
-    4. test from the website
+1. `docker compose build`
+2. `docker compose up`
 
-## Debugging
-`$sh setup.sh --debug`
-
+## Bonus
+If you would like to have a valid certificate, you may want to check [Let's Encrypt](https://letsencrypt.org/getting-started/).  
+Or follow the steps below
+1. `$pip install certbot`
+2. `certbot certonly --email <yourmail> -d <yourdomain> --agree-tos --manual`
+3. replace the path to the certificate in `nginx/generated/site.conf` accordingly
